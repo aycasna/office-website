@@ -3,19 +3,56 @@ import React, {useState} from 'react';
 
 function App() {
   const [returnedData, setReturnedData] = useState(['hi there']);
-  const getData = async (url) => {
-    const newData = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'content-type': 'application/json',
-        'Accept': 'application/json'
-      }
-    })
-    .then(res => res.json);
-    console.log(newData);
-    setReturnedData(newData.result)
+  const [employee, setEmployee] = useState({EmployeeID: 0, FirstName: '', LastName: '', Age: 0, Gender: ''})
+
+  const setInput = (e) => {
+    const {name, value} = e.target;
+    console.log(value);
+    if (name === 'EmployeeID' || name === 'Age'){
+      setEmployee(prevState => ({
+        ...prevState,
+        [name]: parseInt(value)
+      }));
+      return;
+    }
+    setEmployee(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   }
 
+  const fetchData = async () => {
+    console.log(employee);
+    const newData = await fetch('/api', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        name: employee.FirstName
+      })
+    })
+    .then(res => res.json())
+    console.log(newData);
+    setReturnedData(newData[0])
+  }
+
+  const createEmployee = async () => {
+    const newData = await fetch('/hello', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        ...employee
+      })
+    })
+    .then(res => res.json())
+    console.log(newData);
+    setReturnedData(newData[0])
+  }
 
   return (
     <div className="App">
@@ -23,26 +60,27 @@ function App() {
         type="number" 
         name="EmployeeID" 
         placeholder="EmployeeID" 
-        ></input>
+        onChange={setInput}></input>
       <input 
         name="FirstName" 
         placeholder="First Name" 
-        ></input>
+        onChange={setInput}></input>
       <input 
         name="LastName" 
         placeholder="Last Name" 
-        ></input>
+        onChange={setInput}></input>
       <input 
         type="number" 
         name="Age" 
         placeholder="Age" 
-        ></input>
+        onChange={setInput}></input>
       <input 
         name="Gender" 
         placeholder="Gender" 
-        ></input>
+        onChange={setInput}></input>
 
-      <button onClick={() => getData('/quit')}>Click</button>
+      <button onClick={() => fetchData()}>Click</button>
+      <button onClick={() => createEmployee()}>Create</button>
       <p>EmployeeID: {returnedData.EmployeeID}</p>
       <p>FirstName: {returnedData.FirstName}</p>
       <p>LastName: {returnedData.LastName}</p>
